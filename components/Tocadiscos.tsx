@@ -211,7 +211,7 @@ export default function Tocadiscos({
       )}
       {/* ── PANEL 3D VR — sustituye Html en modo inmersivo ── */}
       {isVR && (
-        <group position={[posBase[0], posBase[1] + 0.65, posBase[2] + 0.25]}>
+        <group position={[posBase[0], posBase[1] - 0.2, posBase[2] + 0.45]}>
 
           {/* Hint tocadiscos cerrado */}
           {!mostrarMenu && (

@@ -57,7 +57,7 @@ export default function MesaInteractiva({ scene, studentId }: MesaInteractivaPro
     const t = clock.getElapsedTime();
     // Figura 8 alrededor de la mesa
     mariposRef.current.position.x = posMesa[0] - 0.3 + Math.sin(t * 1.2) * 0.35;
-    mariposRef.current.position.y = posMesa[1] + 0.9 + Math.sin(t * 2.4) * 0.09;
+    mariposRef.current.position.y = posMesa[1] + 0.5 + Math.sin(t * 2.4) * 0.09;
     mariposRef.current.position.z = posMesa[2]        + Math.sin(t * 0.6) * 0.25;
     // Aleteo
     const aleteo = 0.9 + Math.abs(Math.sin(t * 8)) * 0.3;
@@ -166,7 +166,7 @@ export default function MesaInteractiva({ scene, studentId }: MesaInteractivaPro
 
       {/* ── HINT DE INTERACCIÓN CON LA MARIPOSA (siempre visible, contextual) ── */}
       {!isVR && <Html
-        position={[posMesa[0] - 0.3, posMesa[1] + 1.3, posMesa[2]]}
+        position={[posMesa[0] - 0.3, posMesa[1] + 0.68, posMesa[2]]}
         center
         distanceFactor={3}
       >
@@ -346,10 +346,9 @@ export default function MesaInteractiva({ scene, studentId }: MesaInteractivaPro
       )}
       {/* ── PANEL 3D VR — sustituye Html en modo inmersivo ── */}
       {isVR && (
-        <group position={[posMesa[0] + 0.25, posMesa[1] + 0.65, posMesa[2] + 0.25]}>
-
-          {/* Hint mariposa — siempre visible en VR */}
-          <group position={[0, 0.72, 0]}>
+        <>
+          {/* Hint mariposa — anclado cerca de la mariposa, separado del panel de mesa */}
+          <group position={[posMesa[0] - 0.3, posMesa[1] + 0.62, posMesa[2] - 0.1]}>
             <mesh>
               <planeGeometry args={[0.72, 0.1]} />
               <meshBasicMaterial color={estadoMariposa === 'posada' ? '#f9a825' : '#141428'} transparent opacity={0.88} />
@@ -359,9 +358,9 @@ export default function MesaInteractiva({ scene, studentId }: MesaInteractivaPro
             </Text>
           </group>
 
-          {/* Mensaje calma — solo con vela */}
+          {/* Mensaje calma — solo con vela, junto a la mariposa */}
           {velaEncendida && (
-            <group position={[0, 0.58, 0]}>
+            <group position={[posMesa[0] - 0.3, posMesa[1] + 0.5, posMesa[2] - 0.1]}>
               <mesh>
                 <planeGeometry args={[0.55, 0.09]} />
                 <meshBasicMaterial color="#ffc850" transparent opacity={0.9} />
@@ -372,81 +371,85 @@ export default function MesaInteractiva({ scene, studentId }: MesaInteractivaPro
             </group>
           )}
 
-          {/* Hint mesa cerrada */}
-          {!menuAbierto && (
-            <group position={[0, 0.44, 0]}>
-              <mesh>
-                <planeGeometry args={[0.62, 0.09]} />
-                <meshBasicMaterial color="#141428" transparent opacity={0.82} />
-              </mesh>
-              <Text fontSize={0.034} color="white" anchorX="center" anchorY="middle" position={[0, 0, 0.001]}>
-                Apunta la mesa y presiona el gatillo para abrirla
-              </Text>
-            </group>
-          )}
+          {/* Panel de mesa — posición separada, a la derecha y más al frente */}
+          <group position={[posMesa[0] + 0.3, posMesa[1] + 0.2, posMesa[2] + 0.4]}>
 
-          {/* Panel principal — menú abierto */}
-          {menuAbierto && (
-            <group position={[0, 0, 0]}>
-              {/* Fondo del panel */}
-              <mesh position={[0, 0.15, -0.002]}>
-                <planeGeometry args={[0.68, 0.82]} />
-                <meshBasicMaterial color="#fdf6e2" transparent opacity={0.97} />
-              </mesh>
-              {/* Borde */}
-              <mesh position={[0, 0.15, -0.003]}>
-                <planeGeometry args={[0.7, 0.84]} />
-                <meshBasicMaterial color="#d4a84b" />
-              </mesh>
-
-              {/* Título */}
-              <Text fontSize={0.045} color="#3d2000" anchorX="center" anchorY="middle" position={[0, 0.52, 0.001]} fontWeight="bold">
-                Mesa Psicologica
-              </Text>
-              <Text fontSize={0.03} color="#4a7c59" anchorX="center" anchorY="middle" position={[0, 0.46, 0.001]}>
-                {`Sesion: ${studentId}`}
-              </Text>
-
-              {/* Sección vela */}
-              <Text fontSize={0.033} color="#444" anchorX="left" anchorY="middle" position={[-0.28, 0.38, 0.001]}>
-                Control Luminico
-              </Text>
-              <mesh
-                position={[0, 0.3, 0.001]}
-                onClick={(e) => { e.stopPropagation(); setVelaEncendida((v) => !v); }}
-              >
-                <planeGeometry args={[0.52, 0.1]} />
-                <meshBasicMaterial color={velaEncendida ? '#ff6a00' : '#555'} />
-              </mesh>
-              <Text fontSize={0.038} color="white" anchorX="center" anchorY="middle" position={[0, 0.3, 0.002]}>
-                {velaEncendida ? 'Apagar vela' : 'Encender vela'}
-              </Text>
-              {velaEncendida && (
-                <Text fontSize={0.028} color="#ff6a00" anchorX="center" anchorY="middle" position={[0, 0.22, 0.001]}>
-                  Luz calida activa
+            {/* Hint mesa cerrada */}
+            {!menuAbierto && (
+              <group position={[0, 0, 0]}>
+                <mesh>
+                  <planeGeometry args={[0.62, 0.09]} />
+                  <meshBasicMaterial color="#141428" transparent opacity={0.82} />
+                </mesh>
+                <Text fontSize={0.034} color="white" anchorX="center" anchorY="middle" position={[0, 0, 0.001]}>
+                  Apunta la mesa y presiona el gatillo para abrirla
                 </Text>
-              )}
+              </group>
+            )}
 
-              {/* Carta — solo disponible en PC */}
-              <Text fontSize={0.03} color="#666" anchorX="center" anchorY="middle" position={[0, 0.1, 0.001]} maxWidth={0.6} textAlign="center">
-                La carta sentimental esta disponible{'\n'}desde el modo PC
-              </Text>
+            {/* Panel principal — menú abierto */}
+            {menuAbierto && (
+              <group position={[0, 0, 0]}>
+                {/* Fondo del panel */}
+                <mesh position={[0, 0.15, -0.002]}>
+                  <planeGeometry args={[0.68, 0.82]} />
+                  <meshBasicMaterial color="#fdf6e2" transparent opacity={0.97} />
+                </mesh>
+                {/* Borde */}
+                <mesh position={[0, 0.15, -0.003]}>
+                  <planeGeometry args={[0.7, 0.84]} />
+                  <meshBasicMaterial color="#d4a84b" />
+                </mesh>
 
-              {/* Botón cerrar */}
-              <mesh
-                position={[0, -0.1, 0.001]}
-                onClick={(e) => { e.stopPropagation(); setMenuAbierto(false); }}
-              >
-                <planeGeometry args={[0.3, 0.09]} />
-                <meshBasicMaterial color="#888" />
-              </mesh>
-              <Text fontSize={0.036} color="white" anchorX="center" anchorY="middle" position={[0, -0.1, 0.002]}>
-                Cerrar
-              </Text>
-            </group>
-          )}
+                {/* Título */}
+                <Text fontSize={0.045} color="#3d2000" anchorX="center" anchorY="middle" position={[0, 0.52, 0.001]} fontWeight="bold">
+                  Mesa Psicologica
+                </Text>
+                <Text fontSize={0.03} color="#4a7c59" anchorX="center" anchorY="middle" position={[0, 0.46, 0.001]}>
+                  {`Sesion: ${studentId}`}
+                </Text>
 
-        </group>
+                {/* Sección vela */}
+                <Text fontSize={0.033} color="#444" anchorX="left" anchorY="middle" position={[-0.28, 0.38, 0.001]}>
+                  Control Luminico
+                </Text>
+                <mesh
+                  position={[0, 0.3, 0.001]}
+                  onClick={(e) => { e.stopPropagation(); setVelaEncendida((v) => !v); }}
+                >
+                  <planeGeometry args={[0.52, 0.1]} />
+                  <meshBasicMaterial color={velaEncendida ? '#ff6a00' : '#555'} />
+                </mesh>
+                <Text fontSize={0.038} color="white" anchorX="center" anchorY="middle" position={[0, 0.3, 0.002]}>
+                  {velaEncendida ? 'Apagar vela' : 'Encender vela'}
+                </Text>
+                {velaEncendida && (
+                  <Text fontSize={0.028} color="#ff6a00" anchorX="center" anchorY="middle" position={[0, 0.22, 0.001]}>
+                    Luz calida activa
+                  </Text>
+                )}
+
+                {/* Carta — solo disponible en PC */}
+                <Text fontSize={0.03} color="#666" anchorX="center" anchorY="middle" position={[0, 0.1, 0.001]} maxWidth={0.6} textAlign="center">
+                  La carta sentimental esta disponible{'\n'}desde el modo PC
+                </Text>
+
+                {/* Botón cerrar */}
+                <mesh
+                  position={[0, -0.1, 0.001]}
+                  onClick={(e) => { e.stopPropagation(); setMenuAbierto(false); }}
+                >
+                  <planeGeometry args={[0.3, 0.09]} />
+                  <meshBasicMaterial color="#888" />
+                </mesh>
+                <Text fontSize={0.036} color="white" anchorX="center" anchorY="middle" position={[0, -0.1, 0.002]}>
+                  Cerrar
+                </Text>
+              </group>
+            )}
+
+          </group>
+        </>
       )}
 
     </group>
