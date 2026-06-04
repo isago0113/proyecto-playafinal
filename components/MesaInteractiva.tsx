@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
+import { useXR, XRDomOverlay } from '@react-three/xr';
 import { Object3D, Group } from 'three';
 import Vela from './Vela';
 import { upsertEmotionalLetter } from './sessionStore';
@@ -20,6 +21,8 @@ export default function MesaInteractiva({ scene, studentId }: MesaInteractivaPro
   const [textoCarta,      setTextoCarta]      = useState('');
   const [guardado,        setGuardado]        = useState(false);
   const [estadoMariposa,  setEstadoMariposa]  = useState<EstadoMariposa>('volando');
+
+  const isVR = useXR((s) => Boolean(s.session));
 
   const mesaRef     = useRef<Object3D | null>(null);
   const mariposRef  = useRef<Group>(null);
@@ -103,6 +106,7 @@ export default function MesaInteractiva({ scene, studentId }: MesaInteractivaPro
       <group
         ref={mariposRef}
         position={estadoMariposa === 'posada' ? posSocket : posMesa}
+        onClick={toggleMariposa}
       >
         {/* Cuerpo */}
         <mesh>
@@ -134,14 +138,14 @@ export default function MesaInteractiva({ scene, studentId }: MesaInteractivaPro
           />
         </mesh>
 
-        {/* Zona de clic de la mariposa */}
-        <mesh onClick={toggleMariposa}>
-          <sphereGeometry args={[0.13, 8, 8]} />
+        {/* Zona de clic ampliada — invisible, cubre toda la mariposa */}
+        <mesh>
+          <sphereGeometry args={[0.18, 8, 8]} />
           <meshBasicMaterial transparent opacity={0} depthWrite={false} />
         </mesh>
 
         {/* Mensaje de calma — solo con vela encendida */}
-        {velaEncendida && (
+        {velaEncendida && !isVR && (
           <Html position={[0, 0.18, 0]} center distanceFactor={3}>
             <div style={{
               background: 'rgba(255,200,80,0.9)',
@@ -161,7 +165,7 @@ export default function MesaInteractiva({ scene, studentId }: MesaInteractivaPro
       </group>
 
       {/* ── HINT DE INTERACCIÓN CON LA MARIPOSA (siempre visible, contextual) ── */}
-      <Html
+      {!isVR && <Html
         position={[posMesa[0] - 0.3, posMesa[1] + 1.55, posMesa[2]]}
         center
         distanceFactor={3}
@@ -187,7 +191,7 @@ export default function MesaInteractiva({ scene, studentId }: MesaInteractivaPro
             ? '🦋 Toca la mariposa para liberarla'
             : '🦋 Toca la mariposa para agarrarla'}
         </div>
-      </Html>
+      </Html>}
 
       {/* ── Caja de click invisible sobre la mesa (abre/cierra el menú) ── */}
       <mesh
@@ -199,7 +203,7 @@ export default function MesaInteractiva({ scene, studentId }: MesaInteractivaPro
       </mesh>
 
       {/* ── Hint de la mesa cuando el menú está cerrado ── */}
-      {!menuAbierto && (
+      {!menuAbierto && !isVR && (
         <Html
           position={[posMesa[0], posMesa[1] + 1.05, posMesa[2]]}
           center
@@ -220,7 +224,7 @@ export default function MesaInteractiva({ scene, studentId }: MesaInteractivaPro
       )}
 
       {/* ── MENÚ PRINCIPAL DE LA MESA ── */}
-      {menuAbierto && (
+      {menuAbierto && !isVR && (
         <Html
           position={[posMesa[0], posMesa[1] + 0.9, posMesa[2]]}
           transform
@@ -340,6 +344,102 @@ export default function MesaInteractiva({ scene, studentId }: MesaInteractivaPro
           </div>
         </Html>
       )}
+      {/* ── OVERLAY VR — reemplaza todos los <Html> en modo inmersivo ── */}
+      {isVR && (
+        <XRDomOverlay style={{ width: '100%', height: '100%', pointerEvents: 'none' }}>
+
+          {/* Hint de mariposa — parte inferior */}
+          <div style={{
+            position: 'absolute', bottom: '15%', left: '50%', transform: 'translateX(-50%)',
+            background: estadoMariposa === 'posada' ? 'rgba(249,168,37,0.95)' : 'rgba(20,20,40,0.92)',
+            color: estadoMariposa === 'posada' ? '#3d2000' : '#ffd6a3',
+            padding: '10px 22px', borderRadius: '12px', fontSize: '16px',
+            whiteSpace: 'nowrap', pointerEvents: 'none',
+            border: estadoMariposa === 'posada' ? '2px solid rgba(255,160,0,0.6)' : '1px solid rgba(255,214,163,0.3)',
+          }}>
+            {estadoMariposa === 'posada' ? '🦋 Toca la mariposa para liberarla' : '🦋 Toca la mariposa para agarrarla'}
+          </div>
+
+          {/* Mensaje de calma — vela encendida */}
+          {velaEncendida && (
+            <div style={{
+              position: 'absolute', top: '18%', left: '50%', transform: 'translateX(-50%)',
+              background: 'rgba(255,200,80,0.95)', color: '#3d2000',
+              padding: '10px 22px', borderRadius: '12px', fontSize: '16px',
+              whiteSpace: 'nowrap', pointerEvents: 'none',
+            }}>
+              🦋 Respira... estás a salvo
+            </div>
+          )}
+
+          {/* Hint de mesa — menú cerrado */}
+          {!menuAbierto && (
+            <div style={{
+              position: 'absolute', bottom: '8%', left: '50%', transform: 'translateX(-50%)',
+              background: 'rgba(0,0,0,0.82)', color: 'white',
+              padding: '10px 22px', borderRadius: '10px', fontSize: '15px',
+              whiteSpace: 'nowrap', pointerEvents: 'none',
+            }}>
+              🧘 Apunta a la mesa y presiona el gatillo para abrirla
+            </div>
+          )}
+
+          {/* Menú principal — menú abierto */}
+          {menuAbierto && (
+            <div style={{
+              position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+              background: '#fdf6e2', padding: '24px', borderRadius: '16px', width: '380px',
+              fontFamily: 'serif', boxShadow: '0 20px 60px rgba(0,0,0,0.8)',
+              border: '2px solid #d4a84b', pointerEvents: 'all',
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <h3 style={{ margin: 0, color: '#3d2000', fontSize: '18px' }}>🧘 Mesa Psicológica</h3>
+                <button onClick={() => setMenuAbierto(false)}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '22px', color: '#888' }}>✕</button>
+              </div>
+              <p style={{ margin: '0 0 14px', fontSize: '13px', color: '#666' }}>
+                Sesión: <strong style={{ color: '#4a7c59' }}>{studentId}</strong>
+              </p>
+              <div style={{
+                background: velaEncendida ? 'rgba(255,106,0,0.12)' : 'rgba(0,0,0,0.05)',
+                border: `1px solid ${velaEncendida ? '#ff6a00' : '#ccc'}`,
+                borderRadius: '10px', padding: '14px', marginBottom: '14px',
+              }}>
+                <p style={{ margin: '0 0 8px', fontSize: '14px', fontWeight: 'bold', color: '#444' }}>💡 Control Lumínico</p>
+                <button onClick={() => setVelaEncendida((v) => !v)} style={{
+                  width: '100%', padding: '12px', borderRadius: '8px', border: 'none',
+                  background: velaEncendida ? 'linear-gradient(135deg,#ff6a00,#ee0979)' : '#555',
+                  color: 'white', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer',
+                }}>
+                  {velaEncendida ? '🕯️ Apagar vela' : '🕯️ Encender vela'}
+                </button>
+                {velaEncendida && <p style={{ margin: '8px 0 0', fontSize: '12px', color: '#ff6a00', textAlign: 'center' }}>✨ Luz cálida activa</p>}
+              </div>
+              <div style={{ background: 'rgba(255,255,255,0.7)', border: '1px solid #e1d7bc', borderRadius: '10px', padding: '14px' }}>
+                <p style={{ margin: '0 0 8px', fontSize: '14px', fontWeight: 'bold', color: '#444' }}>✍️ Carta Sentimental</p>
+                <textarea value={textoCarta} onChange={(e) => setTextoCarta(e.target.value)}
+                  placeholder="Escribe aquello que sientes, lo que deseas dejar ir..."
+                  style={{
+                    width: '90%', height: '100px', padding: '8px', borderRadius: '6px',
+                    border: '1px solid #ccc', backgroundColor: '#fff', fontSize: '14px',
+                    resize: 'none', fontFamily: 'Georgia, serif', display: 'block',
+                    marginBottom: '10px', lineHeight: '1.5',
+                  }}
+                />
+                <button onClick={guardarCarta} style={{
+                  width: '100%', padding: '12px', borderRadius: '6px', border: 'none',
+                  background: guardado ? '#2d7d46' : '#4a7c59', color: 'white',
+                  fontSize: '14px', fontWeight: 'bold', cursor: 'pointer',
+                }}>
+                  {guardado ? '✅ Carta guardada' : '💾 Guardar carta'}
+                </button>
+              </div>
+            </div>
+          )}
+
+        </XRDomOverlay>
+      )}
+
     </group>
   );
 }
