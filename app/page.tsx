@@ -16,7 +16,6 @@ import MenuBienvenida from '../components/MenuBienvenida';
 const store = createXRStore({
   controller: true,
   hand: false,
-  domOverlay: true,
 });
 
 export default function Home() {

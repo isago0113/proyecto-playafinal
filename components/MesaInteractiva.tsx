@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Html } from '@react-three/drei';
-import { useXR, XRDomOverlay } from '@react-three/xr';
+import { Html, Text } from '@react-three/drei';
+import { useXR } from '@react-three/xr';
 import { Object3D, Group } from 'three';
 import Vela from './Vela';
 import { upsertEmotionalLetter } from './sessionStore';
@@ -344,100 +344,109 @@ export default function MesaInteractiva({ scene, studentId }: MesaInteractivaPro
           </div>
         </Html>
       )}
-      {/* ── OVERLAY VR — reemplaza todos los <Html> en modo inmersivo ── */}
+      {/* ── PANEL 3D VR — sustituye Html en modo inmersivo ── */}
       {isVR && (
-        <XRDomOverlay style={{ width: '100%', height: '100%', pointerEvents: 'none' }}>
+        <group position={[posMesa[0], posMesa[1] + 0.9, posMesa[2] + 0.05]}>
 
-          {/* Hint de mariposa — parte inferior */}
-          <div style={{
-            position: 'absolute', bottom: '15%', left: '50%', transform: 'translateX(-50%)',
-            background: estadoMariposa === 'posada' ? 'rgba(249,168,37,0.95)' : 'rgba(20,20,40,0.92)',
-            color: estadoMariposa === 'posada' ? '#3d2000' : '#ffd6a3',
-            padding: '10px 22px', borderRadius: '12px', fontSize: '16px',
-            whiteSpace: 'nowrap', pointerEvents: 'none',
-            border: estadoMariposa === 'posada' ? '2px solid rgba(255,160,0,0.6)' : '1px solid rgba(255,214,163,0.3)',
-          }}>
-            {estadoMariposa === 'posada' ? '🦋 Toca la mariposa para liberarla' : '🦋 Toca la mariposa para agarrarla'}
-          </div>
+          {/* Hint mariposa — siempre visible en VR */}
+          <group position={[0, 0.72, 0]}>
+            <mesh>
+              <planeGeometry args={[0.72, 0.1]} />
+              <meshBasicMaterial color={estadoMariposa === 'posada' ? '#f9a825' : '#141428'} transparent opacity={0.88} />
+            </mesh>
+            <Text fontSize={0.038} color={estadoMariposa === 'posada' ? '#3d2000' : '#ffd6a3'} anchorX="center" anchorY="middle" position={[0, 0, 0.001]}>
+              {estadoMariposa === 'posada' ? 'Apunta la mariposa y presiona el gatillo para liberarla' : 'Apunta la mariposa y presiona el gatillo para agarrarla'}
+            </Text>
+          </group>
 
-          {/* Mensaje de calma — vela encendida */}
+          {/* Mensaje calma — solo con vela */}
           {velaEncendida && (
-            <div style={{
-              position: 'absolute', top: '18%', left: '50%', transform: 'translateX(-50%)',
-              background: 'rgba(255,200,80,0.95)', color: '#3d2000',
-              padding: '10px 22px', borderRadius: '12px', fontSize: '16px',
-              whiteSpace: 'nowrap', pointerEvents: 'none',
-            }}>
-              🦋 Respira... estás a salvo
-            </div>
+            <group position={[0, 0.58, 0]}>
+              <mesh>
+                <planeGeometry args={[0.55, 0.09]} />
+                <meshBasicMaterial color="#ffc850" transparent opacity={0.9} />
+              </mesh>
+              <Text fontSize={0.036} color="#3d2000" anchorX="center" anchorY="middle" position={[0, 0, 0.001]}>
+                Respira... estas a salvo
+              </Text>
+            </group>
           )}
 
-          {/* Hint de mesa — menú cerrado */}
+          {/* Hint mesa cerrada */}
           {!menuAbierto && (
-            <div style={{
-              position: 'absolute', bottom: '8%', left: '50%', transform: 'translateX(-50%)',
-              background: 'rgba(0,0,0,0.82)', color: 'white',
-              padding: '10px 22px', borderRadius: '10px', fontSize: '15px',
-              whiteSpace: 'nowrap', pointerEvents: 'none',
-            }}>
-              🧘 Apunta a la mesa y presiona el gatillo para abrirla
-            </div>
+            <group position={[0, 0.44, 0]}>
+              <mesh>
+                <planeGeometry args={[0.62, 0.09]} />
+                <meshBasicMaterial color="#141428" transparent opacity={0.82} />
+              </mesh>
+              <Text fontSize={0.034} color="white" anchorX="center" anchorY="middle" position={[0, 0, 0.001]}>
+                Apunta la mesa y presiona el gatillo para abrirla
+              </Text>
+            </group>
           )}
 
-          {/* Menú principal — menú abierto */}
+          {/* Panel principal — menú abierto */}
           {menuAbierto && (
-            <div style={{
-              position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-              background: '#fdf6e2', padding: '24px', borderRadius: '16px', width: '380px',
-              fontFamily: 'serif', boxShadow: '0 20px 60px rgba(0,0,0,0.8)',
-              border: '2px solid #d4a84b', pointerEvents: 'all',
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                <h3 style={{ margin: 0, color: '#3d2000', fontSize: '18px' }}>🧘 Mesa Psicológica</h3>
-                <button onClick={() => setMenuAbierto(false)}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '22px', color: '#888' }}>✕</button>
-              </div>
-              <p style={{ margin: '0 0 14px', fontSize: '13px', color: '#666' }}>
-                Sesión: <strong style={{ color: '#4a7c59' }}>{studentId}</strong>
-              </p>
-              <div style={{
-                background: velaEncendida ? 'rgba(255,106,0,0.12)' : 'rgba(0,0,0,0.05)',
-                border: `1px solid ${velaEncendida ? '#ff6a00' : '#ccc'}`,
-                borderRadius: '10px', padding: '14px', marginBottom: '14px',
-              }}>
-                <p style={{ margin: '0 0 8px', fontSize: '14px', fontWeight: 'bold', color: '#444' }}>💡 Control Lumínico</p>
-                <button onClick={() => setVelaEncendida((v) => !v)} style={{
-                  width: '100%', padding: '12px', borderRadius: '8px', border: 'none',
-                  background: velaEncendida ? 'linear-gradient(135deg,#ff6a00,#ee0979)' : '#555',
-                  color: 'white', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer',
-                }}>
-                  {velaEncendida ? '🕯️ Apagar vela' : '🕯️ Encender vela'}
-                </button>
-                {velaEncendida && <p style={{ margin: '8px 0 0', fontSize: '12px', color: '#ff6a00', textAlign: 'center' }}>✨ Luz cálida activa</p>}
-              </div>
-              <div style={{ background: 'rgba(255,255,255,0.7)', border: '1px solid #e1d7bc', borderRadius: '10px', padding: '14px' }}>
-                <p style={{ margin: '0 0 8px', fontSize: '14px', fontWeight: 'bold', color: '#444' }}>✍️ Carta Sentimental</p>
-                <textarea value={textoCarta} onChange={(e) => setTextoCarta(e.target.value)}
-                  placeholder="Escribe aquello que sientes, lo que deseas dejar ir..."
-                  style={{
-                    width: '90%', height: '100px', padding: '8px', borderRadius: '6px',
-                    border: '1px solid #ccc', backgroundColor: '#fff', fontSize: '14px',
-                    resize: 'none', fontFamily: 'Georgia, serif', display: 'block',
-                    marginBottom: '10px', lineHeight: '1.5',
-                  }}
-                />
-                <button onClick={guardarCarta} style={{
-                  width: '100%', padding: '12px', borderRadius: '6px', border: 'none',
-                  background: guardado ? '#2d7d46' : '#4a7c59', color: 'white',
-                  fontSize: '14px', fontWeight: 'bold', cursor: 'pointer',
-                }}>
-                  {guardado ? '✅ Carta guardada' : '💾 Guardar carta'}
-                </button>
-              </div>
-            </div>
+            <group position={[0, 0, 0]}>
+              {/* Fondo del panel */}
+              <mesh position={[0, 0.15, -0.002]}>
+                <planeGeometry args={[0.68, 0.82]} />
+                <meshBasicMaterial color="#fdf6e2" transparent opacity={0.97} />
+              </mesh>
+              {/* Borde */}
+              <mesh position={[0, 0.15, -0.003]}>
+                <planeGeometry args={[0.7, 0.84]} />
+                <meshBasicMaterial color="#d4a84b" />
+              </mesh>
+
+              {/* Título */}
+              <Text fontSize={0.045} color="#3d2000" anchorX="center" anchorY="middle" position={[0, 0.52, 0.001]} fontWeight="bold">
+                Mesa Psicologica
+              </Text>
+              <Text fontSize={0.03} color="#4a7c59" anchorX="center" anchorY="middle" position={[0, 0.46, 0.001]}>
+                {`Sesion: ${studentId}`}
+              </Text>
+
+              {/* Sección vela */}
+              <Text fontSize={0.033} color="#444" anchorX="left" anchorY="middle" position={[-0.28, 0.38, 0.001]}>
+                Control Luminico
+              </Text>
+              <mesh
+                position={[0, 0.3, 0.001]}
+                onClick={(e) => { e.stopPropagation(); setVelaEncendida((v) => !v); }}
+              >
+                <planeGeometry args={[0.52, 0.1]} />
+                <meshBasicMaterial color={velaEncendida ? '#ff6a00' : '#555'} />
+              </mesh>
+              <Text fontSize={0.038} color="white" anchorX="center" anchorY="middle" position={[0, 0.3, 0.002]}>
+                {velaEncendida ? 'Apagar vela' : 'Encender vela'}
+              </Text>
+              {velaEncendida && (
+                <Text fontSize={0.028} color="#ff6a00" anchorX="center" anchorY="middle" position={[0, 0.22, 0.001]}>
+                  Luz calida activa
+                </Text>
+              )}
+
+              {/* Carta — solo disponible en PC */}
+              <Text fontSize={0.03} color="#666" anchorX="center" anchorY="middle" position={[0, 0.1, 0.001]} maxWidth={0.6} textAlign="center">
+                La carta sentimental esta disponible{'\n'}desde el modo PC
+              </Text>
+
+              {/* Botón cerrar */}
+              <mesh
+                position={[0, -0.1, 0.001]}
+                onClick={(e) => { e.stopPropagation(); setMenuAbierto(false); }}
+              >
+                <planeGeometry args={[0.3, 0.09]} />
+                <meshBasicMaterial color="#888" />
+              </mesh>
+              <Text fontSize={0.036} color="white" anchorX="center" anchorY="middle" position={[0, -0.1, 0.002]}>
+                Cerrar
+              </Text>
+            </group>
           )}
 
-        </XRDomOverlay>
+        </group>
       )}
 
     </group>
