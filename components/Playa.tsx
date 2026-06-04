@@ -80,9 +80,7 @@ export default function Playa({ studentId }: PlayaProps) {
   return (
     <group name="escena-playa-vr">
 
-      <group ref={grupoJugadorRef}>
-        <XROrigin />
-      </group>
+      <XROrigin ref={grupoJugadorRef} />
 
       <ControlesVideojuego
         activo={true}
