@@ -5,7 +5,7 @@ import { useFrame } from '@react-three/fiber';
 import { useXR } from '@react-three/xr';
 import { Html } from '@react-three/drei';
 import { Object3D, Vector3, Mesh } from 'three';
-import { triggerHaptic } from './ControlesVideojuego';
+import { triggerHaptic, XRHapticState } from './ControlesVideojuego';
 
 interface PelotaProps {
   scene: Object3D;
@@ -25,8 +25,7 @@ export default function Pelota({ scene, animando, setAnimando }: PelotaProps) {
   const velocidadRef = useRef(new Vector3());
   const modoRef     = useRef<Modo>('espera');
 
-  // ✅ Cast explícito — mismo tipo que acepta triggerHaptic
-  const xr = useXR() as { isPresenting: boolean; session: XRSession | null };
+  const xr = useXR() as XRHapticState;
 
   useEffect(() => {
     if (!scene) return;

@@ -4,16 +4,11 @@ import { useRef, useEffect, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useXR } from '@react-three/xr';
 import { PointLight, Object3D, Mesh } from 'three';
-import { triggerHaptic } from './ControlesVideojuego';
+import { triggerHaptic, XRHapticState } from './ControlesVideojuego';
 
 interface VelaProps {
   scene: Object3D;
   encendida: boolean;
-}
-
-interface XRHapticState {
-  isPresenting: boolean;
-  session: XRSession | null;
 }
 
 export default function Vela({ scene, encendida }: VelaProps) {

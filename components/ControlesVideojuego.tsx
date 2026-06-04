@@ -6,9 +6,8 @@ import { useXR, useXRInputSourceState } from '@react-three/xr';
 import { Vector3, Group } from 'three';
 import type { SolidBound, WalkableZone } from './collisionConfig';
 
-interface XRHapticState {
-  isPresenting: boolean;
-  session: XRSession | null;
+export interface XRHapticState {
+  session?: XRSession;
 }
 
 export const triggerHaptic = (
@@ -17,7 +16,7 @@ export const triggerHaptic = (
   intensity: number,
   duration: number
 ) => {
-  if (!xr.isPresenting || !xr.session) return;
+  if (!xr.session) return;
   for (const source of Array.from(xr.session.inputSources)) {
     if (handedness !== 'both' && source.handedness !== handedness) continue;
     const actuators = source.gamepad?.hapticActuators;
@@ -53,7 +52,7 @@ export default function ControlesVideojuego({
   onDebugData,
 }: ControlesProps) {
   const { camera } = useThree();
-  const isPresenting = useXR((s) => s.isPresenting);
+  const xrSession = useXR((s) => s.session);
   const leftController = useXRInputSourceState('controller', 'left');
 
   const teclasRef        = useRef<Record<string, boolean>>({});
@@ -94,7 +93,7 @@ export default function ControlesVideojuego({
     // ══════════════════════════════════════════════════════════════════════
     // 🥽 MODO VR — joystick izquierdo via useXRInputSourceState (API v6)
     // ══════════════════════════════════════════════════════════════════════
-    if (isPresenting) {
+    if (xrSession != null) {
       const group = playerGroupRef?.current;
       if (!group) return;
 
