@@ -57,7 +57,7 @@ export default function MesaInteractiva({ scene, studentId }: MesaInteractivaPro
     const t = clock.getElapsedTime();
     // Figura 8 alrededor de la mesa
     mariposRef.current.position.x = posMesa[0] - 0.3 + Math.sin(t * 1.2) * 0.35;
-    mariposRef.current.position.y = posMesa[1] + 1.15 + Math.sin(t * 2.4) * 0.09;
+    mariposRef.current.position.y = posMesa[1] + 0.9 + Math.sin(t * 2.4) * 0.09;
     mariposRef.current.position.z = posMesa[2]        + Math.sin(t * 0.6) * 0.25;
     // Aleteo
     const aleteo = 0.9 + Math.abs(Math.sin(t * 8)) * 0.3;
@@ -166,7 +166,7 @@ export default function MesaInteractiva({ scene, studentId }: MesaInteractivaPro
 
       {/* ── HINT DE INTERACCIÓN CON LA MARIPOSA (siempre visible, contextual) ── */}
       {!isVR && <Html
-        position={[posMesa[0] - 0.3, posMesa[1] + 1.55, posMesa[2]]}
+        position={[posMesa[0] - 0.3, posMesa[1] + 1.3, posMesa[2]]}
         center
         distanceFactor={3}
       >
@@ -346,7 +346,7 @@ export default function MesaInteractiva({ scene, studentId }: MesaInteractivaPro
       )}
       {/* ── PANEL 3D VR — sustituye Html en modo inmersivo ── */}
       {isVR && (
-        <group position={[posMesa[0], posMesa[1] + 0.9, posMesa[2] + 0.05]}>
+        <group position={[posMesa[0] + 0.25, posMesa[1] + 0.65, posMesa[2] + 0.25]}>
 
           {/* Hint mariposa — siempre visible en VR */}
           <group position={[0, 0.72, 0]}>

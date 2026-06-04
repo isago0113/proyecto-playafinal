@@ -3,7 +3,8 @@
 import { useRef, useEffect, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Object3D } from 'three';
-import { Html } from '@react-three/drei';
+import { Html, Text } from '@react-three/drei';
+import { useXR } from '@react-three/xr';
 import { LISTA_CANCIONES } from './useBeachAudio';
 
 interface TocadiscosProps {
@@ -26,6 +27,8 @@ export default function Tocadiscos({
   const discoRef  = useRef<Object3D | null>(null);
   const muebleRef = useRef<Object3D | null>(null);
   const [mostrarMenu, setMostrarMenu] = useState(false);
+
+  const isVR = useXR((s) => Boolean(s.session));
 
   useEffect(() => {
     if (!scene) return;
@@ -69,7 +72,7 @@ export default function Tocadiscos({
       </mesh>
 
       {/* Hint cuando está cerrado */}
-      {!mostrarMenu && (
+      {!mostrarMenu && !isVR && (
         <Html position={posBase} center distanceFactor={3}>
           <div style={{
             background: 'rgba(0,0,0,0.75)',
@@ -86,7 +89,7 @@ export default function Tocadiscos({
       )}
 
       {/* Menú flotante de reproducción */}
-      {mostrarMenu && (
+      {mostrarMenu && !isVR && (
         <Html
           position={posMenu}
           transform
@@ -206,6 +209,120 @@ export default function Tocadiscos({
           </div>
         </Html>
       )}
+      {/* ── PANEL 3D VR — sustituye Html en modo inmersivo ── */}
+      {isVR && (
+        <group position={[posBase[0], posBase[1] + 0.65, posBase[2] + 0.25]}>
+
+          {/* Hint tocadiscos cerrado */}
+          {!mostrarMenu && (
+            <group position={[0, 0.1, 0]}>
+              <mesh>
+                <planeGeometry args={[0.72, 0.1]} />
+                <meshBasicMaterial color="#141428" transparent opacity={0.85} />
+              </mesh>
+              <Text fontSize={0.034} color="white" anchorX="center" anchorY="middle" position={[0, 0, 0.001]}>
+                Apunta el tocadiscos y presiona el gatillo
+              </Text>
+            </group>
+          )}
+
+          {/* Panel principal abierto */}
+          {mostrarMenu && (
+            <group position={[0, 0, 0]}>
+              {/* Borde */}
+              <mesh position={[0, 0.15, -0.003]}>
+                <planeGeometry args={[0.72, 0.76]} />
+                <meshBasicMaterial color="#4a7c59" />
+              </mesh>
+              {/* Fondo */}
+              <mesh position={[0, 0.15, -0.002]}>
+                <planeGeometry args={[0.70, 0.74]} />
+                <meshBasicMaterial color="#12121c" transparent opacity={0.97} />
+              </mesh>
+
+              {/* Título */}
+              <Text fontSize={0.04} color="#4a7c59" anchorX="center" anchorY="middle" position={[0, 0.5, 0.001]} fontWeight="bold">
+                TOCADISCOS
+              </Text>
+
+              {/* Estado + canción actual */}
+              <Text fontSize={0.028} color="#aaa" anchorX="center" anchorY="middle" position={[0, 0.44, 0.001]}>
+                {reproduciendo ? 'REPRODUCIENDO' : 'EN PAUSA'}
+              </Text>
+              <Text fontSize={0.032} color="white" anchorX="center" anchorY="middle" position={[0, 0.38, 0.001]} maxWidth={0.62} textAlign="center">
+                {LISTA_CANCIONES[cancionActualIndex].nombre}
+              </Text>
+
+              {/* Botón Play/Pausa */}
+              <mesh
+                position={[-0.15, 0.26, 0.001]}
+                onClick={(e) => { e.stopPropagation(); togglePlayPausa(); }}
+              >
+                <planeGeometry args={[0.26, 0.1]} />
+                <meshBasicMaterial color={reproduciendo ? '#c0392b' : '#4a7c59'} />
+              </mesh>
+              <Text fontSize={0.036} color="white" anchorX="center" anchorY="middle" position={[-0.15, 0.26, 0.002]}>
+                {reproduciendo ? 'PAUSAR' : 'PLAY'}
+              </Text>
+
+              {/* Botón Siguiente */}
+              <mesh
+                position={[0.18, 0.26, 0.001]}
+                onClick={(e) => { e.stopPropagation(); siguienteCancion(); }}
+              >
+                <planeGeometry args={[0.22, 0.1]} />
+                <meshBasicMaterial color="#2a2a3a" />
+              </mesh>
+              <Text fontSize={0.034} color="white" anchorX="center" anchorY="middle" position={[0.18, 0.26, 0.002]}>
+                SIGUIENTE
+              </Text>
+
+              {/* Lista canciones (solo nombres, sin interacción) */}
+              {LISTA_CANCIONES.map((cancion, idx) => {
+                const esActual = idx === cancionActualIndex;
+                return (
+                  <group key={idx} position={[0, 0.16 - idx * 0.075, 0.001]}>
+                    <mesh
+                      onClick={(e) => { e.stopPropagation(); seleccionarCancion(idx); }}
+                    >
+                      <planeGeometry args={[0.62, 0.065]} />
+                      <meshBasicMaterial
+                        color={esActual ? 'rgba(74,124,89,0.4)' : 'rgba(255,255,255,0.04)'}
+                        transparent
+                        opacity={esActual ? 0.6 : 0.15}
+                      />
+                    </mesh>
+                    <Text
+                      fontSize={0.026}
+                      color={esActual ? '#7fffb0' : '#bbb'}
+                      anchorX="center"
+                      anchorY="middle"
+                      position={[0, 0, 0.001]}
+                      maxWidth={0.58}
+                    >
+                      {`${esActual ? '▶ ' : '○ '}${cancion.nombre}`}
+                    </Text>
+                  </group>
+                );
+              })}
+
+              {/* Botón cerrar */}
+              <mesh
+                position={[0, -0.14, 0.001]}
+                onClick={(e) => { e.stopPropagation(); setMostrarMenu(false); }}
+              >
+                <planeGeometry args={[0.3, 0.09]} />
+                <meshBasicMaterial color="#555" />
+              </mesh>
+              <Text fontSize={0.034} color="white" anchorX="center" anchorY="middle" position={[0, -0.14, 0.002]}>
+                Cerrar
+              </Text>
+            </group>
+          )}
+
+        </group>
+      )}
+
     </group>
   );
 }
