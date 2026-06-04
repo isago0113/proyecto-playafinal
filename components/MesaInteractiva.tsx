@@ -314,7 +314,8 @@ export default function MesaInteractiva({ scene, studentId }: MesaInteractivaPro
                   padding: '6px',
                   borderRadius: '4px',
                   border: '1px solid #ccc',
-                  backgroundColor: '#fff',
+                  backgroundColor: '#fffef5',
+                  color: '#333',
                   fontSize: '11px',
                   resize: 'none',
                   fontFamily: 'Georgia, serif',
@@ -372,7 +373,7 @@ export default function MesaInteractiva({ scene, studentId }: MesaInteractivaPro
           )}
 
           {/* Panel de mesa — posición separada, a la derecha y más al frente */}
-          <group position={[posMesa[0] + 0.3, posMesa[1] + 0.2, posMesa[2] + 0.4]}>
+          <group position={[posMesa[0] + 0.55, posMesa[1] + 0.2, posMesa[2] + 0.4]}>
 
             {/* Hint mesa cerrada */}
             {!menuAbierto && (
@@ -391,13 +392,13 @@ export default function MesaInteractiva({ scene, studentId }: MesaInteractivaPro
             {menuAbierto && (
               <group position={[0, 0, 0]}>
                 {/* Fondo del panel */}
-                <mesh position={[0, 0.15, -0.002]}>
-                  <planeGeometry args={[0.68, 0.82]} />
+                <mesh position={[0, 0.05, -0.002]}>
+                  <planeGeometry args={[0.68, 1.06]} />
                   <meshBasicMaterial color="#fdf6e2" transparent opacity={0.97} />
                 </mesh>
                 {/* Borde */}
-                <mesh position={[0, 0.15, -0.003]}>
-                  <planeGeometry args={[0.7, 0.84]} />
+                <mesh position={[0, 0.05, -0.003]}>
+                  <planeGeometry args={[0.70, 1.08]} />
                   <meshBasicMaterial color="#d4a84b" />
                 </mesh>
 
@@ -429,20 +430,69 @@ export default function MesaInteractiva({ scene, studentId }: MesaInteractivaPro
                   </Text>
                 )}
 
-                {/* Carta — solo disponible en PC */}
-                <Text fontSize={0.03} color="#666" anchorX="center" anchorY="middle" position={[0, 0.1, 0.001]} maxWidth={0.6} textAlign="center">
-                  La carta sentimental esta disponible{'\n'}desde el modo PC
+                {/* ── Carta Sentimental VR ── */}
+                <Text fontSize={0.028} color="#444" anchorX="left" anchorY="middle" position={[-0.28, 0.13, 0.001]}>
+                  Carta Sentimental
+                </Text>
+                {/* Display del texto actual */}
+                <mesh position={[0, 0.055, 0.001]}>
+                  <planeGeometry args={[0.58, 0.07]} />
+                  <meshBasicMaterial color="#fffef5" />
+                </mesh>
+                <Text fontSize={0.022} color="#333" anchorX="center" anchorY="middle" position={[0, 0.055, 0.002]} maxWidth={0.54} textAlign="center">
+                  {textoCarta.trim() || 'Selecciona palabras...'}
+                </Text>
+                {/* Fila de palabras 1 */}
+                {(['Paz', 'Amor', 'Calma', 'Gratitud'] as const).map((p, i) => (
+                  <group key={p} position={[-0.21 + i * 0.14, -0.03, 0.001]}>
+                    <mesh onClick={(e) => { e.stopPropagation(); setTextoCarta((prev) => prev ? `${prev} ${p}` : p); }}>
+                      <planeGeometry args={[0.12, 0.056]} />
+                      <meshBasicMaterial color="#4a7c59" />
+                    </mesh>
+                    <Text fontSize={0.024} color="white" anchorX="center" anchorY="middle" position={[0, 0, 0.001]}>{p}</Text>
+                  </group>
+                ))}
+                {/* Fila de palabras 2 */}
+                {(['Soltar', 'Perdon', 'Espero', 'Gracias'] as const).map((p, i) => (
+                  <group key={p} position={[-0.21 + i * 0.14, -0.11, 0.001]}>
+                    <mesh onClick={(e) => { e.stopPropagation(); setTextoCarta((prev) => prev ? `${prev} ${p}` : p); }}>
+                      <planeGeometry args={[0.12, 0.056]} />
+                      <meshBasicMaterial color="#3d6b8a" />
+                    </mesh>
+                    <Text fontSize={0.022} color="white" anchorX="center" anchorY="middle" position={[0, 0, 0.001]}>{p}</Text>
+                  </group>
+                ))}
+                {/* ⌫ Borrar y Guardar */}
+                <mesh
+                  position={[-0.19, -0.21, 0.001]}
+                  onClick={(e) => { e.stopPropagation(); setTextoCarta((prev) => { const w = prev.trim().split(/\s+/); w.pop(); return w.join(' '); }); }}
+                >
+                  <planeGeometry args={[0.20, 0.065]} />
+                  <meshBasicMaterial color="#c0392b" />
+                </mesh>
+                <Text fontSize={0.026} color="white" anchorX="center" anchorY="middle" position={[-0.19, -0.21, 0.002]}>
+                  Borrar
+                </Text>
+                <mesh
+                  position={[0.13, -0.21, 0.001]}
+                  onClick={(e) => { e.stopPropagation(); guardarCarta(); }}
+                >
+                  <planeGeometry args={[0.26, 0.065]} />
+                  <meshBasicMaterial color={guardado ? '#2d7d46' : '#555'} />
+                </mesh>
+                <Text fontSize={0.026} color="white" anchorX="center" anchorY="middle" position={[0.13, -0.21, 0.002]}>
+                  {guardado ? 'Guardado' : 'Guardar'}
                 </Text>
 
                 {/* Botón cerrar */}
                 <mesh
-                  position={[0, -0.1, 0.001]}
+                  position={[0, -0.34, 0.001]}
                   onClick={(e) => { e.stopPropagation(); setMenuAbierto(false); }}
                 >
                   <planeGeometry args={[0.3, 0.09]} />
                   <meshBasicMaterial color="#888" />
                 </mesh>
-                <Text fontSize={0.036} color="white" anchorX="center" anchorY="middle" position={[0, -0.1, 0.002]}>
+                <Text fontSize={0.036} color="white" anchorX="center" anchorY="middle" position={[0, -0.34, 0.002]}>
                   Cerrar
                 </Text>
               </group>
