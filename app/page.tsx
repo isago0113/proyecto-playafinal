@@ -15,7 +15,8 @@ import MenuBienvenida from '../components/MenuBienvenida';
 // para que Meta Quest priorice los Joysticks inmediatamente al pulsar "Entrar en VR".
 const store = createXRStore({
   controller: true,
-  hand: false
+  hand: false,
+  domOverlay: true,
 });
 
 export default function Home() {
