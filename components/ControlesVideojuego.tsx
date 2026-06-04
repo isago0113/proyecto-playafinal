@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, RefObject } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import { useXR } from '@react-three/xr';
+import { useXR, useXRInputSourceState } from '@react-three/xr';
 import { Vector3, Group } from 'three';
 import type { SolidBound, WalkableZone } from './collisionConfig';
 
@@ -53,7 +53,8 @@ export default function ControlesVideojuego({
   onDebugData,
 }: ControlesProps) {
   const { camera } = useThree();
-  const xr: XRHapticState = useXR() as XRHapticState;
+  const isPresenting = useXR((s) => s.isPresenting);
+  const leftController = useXRInputSourceState('controller', 'left');
 
   const teclasRef        = useRef<Record<string, boolean>>({});
   const moveVectorRef    = useRef(new Vector3());
@@ -91,23 +92,15 @@ export default function ControlesVideojuego({
   useFrame((_, delta) => {
 
     // ══════════════════════════════════════════════════════════════════════
-    // 🥽 MODO VR — lectura directa del WebXR Gamepad API
+    // 🥽 MODO VR — joystick izquierdo via useXRInputSourceState (API v6)
     // ══════════════════════════════════════════════════════════════════════
-    if (xr.isPresenting) {
+    if (isPresenting) {
       const group = playerGroupRef?.current;
-      if (!group || !xr.session) return;
+      if (!group) return;
 
-      // Leer joystick izquierdo directamente del InputSource (más fiable que useXRInputSourceState)
-      let axisX = 0, axisZ = 0;
-      for (const source of Array.from(xr.session.inputSources)) {
-        if (source.handedness === 'left' && source.gamepad) {
-          // XR Standard Gamepad: axes[2] = thumbstick X, axes[3] = thumbstick Y
-          // Convención WebXR: axes[3] negativo = stick empujado hacia adelante
-          axisX = source.gamepad.axes[2] ?? 0;
-          axisZ = source.gamepad.axes[3] ?? 0;
-          break;
-        }
-      }
+      const thumbstick = leftController?.gamepad['xr-standard-thumbstick'];
+      const axisX = thumbstick?.xAxis ?? 0;
+      const axisZ = thumbstick?.yAxis ?? 0;
 
       const deadzone = 0.15;
       const moverX = Math.abs(axisX) > deadzone;
