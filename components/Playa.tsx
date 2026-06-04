@@ -94,7 +94,16 @@ export default function Playa({ studentId }: PlayaProps) {
         playerGroupRef={grupoJugadorRef}
       />
 
-      <primitive object={scene} />
+      <primitive object={scene} onUpdate={(self: import('three').Object3D) => {
+        if ((self as any).__debugDone) return;
+        (self as any).__debugDone = true;
+        const worldPos = new Vector3();
+        self.traverse((obj) => {
+          if (!obj.name) return;
+          obj.getWorldPosition(worldPos);
+          console.log(`[GLB] ${obj.type} | "${obj.name}" | x:${worldPos.x.toFixed(3)} y:${worldPos.y.toFixed(3)} z:${worldPos.z.toFixed(3)}`);
+        });
+      }} />
       <EntornoObjetos scene={scene} />
 
       <InteractionIndicators
