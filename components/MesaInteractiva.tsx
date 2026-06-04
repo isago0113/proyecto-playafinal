@@ -27,8 +27,9 @@ export default function MesaInteractiva({ scene, studentId }: MesaInteractivaPro
   useEffect(() => {
     if (!scene) return;
     const mesa =
-      scene.getObjectByName('table') ||
-      scene.getObjectByName('mesa')  ||
+      scene.getObjectByName('Cube001') ||
+      scene.getObjectByName('table')   ||
+      scene.getObjectByName('mesa')    ||
       scene.getObjectByName('desk');
     if (mesa) mesaRef.current = mesa;
   }, [scene]);
@@ -36,7 +37,7 @@ export default function MesaInteractiva({ scene, studentId }: MesaInteractivaPro
   // Posición base de la mesa (fallback si el GLB no tiene el objeto nombrado)
   const posMesa: [number, number, number] = mesaRef.current
     ? [mesaRef.current.position.x, mesaRef.current.position.y, mesaRef.current.position.z]
-    : [6.6, 0.25, 0.4];
+    : [1.8, 1.45, -6.87];
 
   // Posición del socket (sobre la superficie de la mesa)
   const posSocket: [number, number, number] = [

@@ -24,8 +24,8 @@ const RADIO_INTERACCION = 3.5;
 // Indicadores solo en tocadiscos y mesa psicológica.
 // Posición Y elevada para que la flecha sea visible por encima de los objetos.
 const PUNTOS_INTERACCION: IndicatorPoint[] = [
-  { id: 'mesa',       position: [6.6,  1.8,  0.4] },
-  { id: 'tocadiscos', position: [1.7,  2.1, -5.9] },
+  { id: 'mesa',       position: [1.8,  2.2, -6.87] },
+  { id: 'tocadiscos', position: [-3.17, 2.5, -6.43] },
 ];
 
 interface PlayaProps {

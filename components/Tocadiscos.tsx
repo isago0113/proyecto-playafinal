@@ -30,14 +30,16 @@ export default function Tocadiscos({
   useEffect(() => {
     if (!scene) return;
     const disco =
+      scene.getObjectByName('LP')           ||
       scene.getObjectByName('record')       ||
       scene.getObjectByName('record_plate') ||
       scene.getObjectByName('disco');
     if (disco) discoRef.current = disco;
 
     const mueble =
-      scene.getObjectByName('gramophone') ||
-      scene.getObjectByName('tocadiscos') ||
+      scene.getObjectByName('Mill_Opera_Housing') ||
+      scene.getObjectByName('gramophone')         ||
+      scene.getObjectByName('tocadiscos')         ||
       disco;
     if (mueble) muebleRef.current = mueble;
   }, [scene]);
@@ -50,7 +52,7 @@ export default function Tocadiscos({
 
   const posBase: [number, number, number] = muebleRef.current
     ? [muebleRef.current.position.x, muebleRef.current.position.y, muebleRef.current.position.z]
-    : [1.7, 1.42, -5.9];
+    : [-3.17, 1.67, -6.43];
 
   const posMenu: [number, number, number] = [posBase[0], posBase[1] + 0.65, posBase[2]];
 
