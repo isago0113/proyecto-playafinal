@@ -47,6 +47,5 @@ next-env.d.ts
 
 # Large assets — host these externally, do not commit
 public/beach.glb
-public/*.mp3
 cloudflared.exe
 

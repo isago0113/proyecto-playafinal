@@ -33,7 +33,7 @@ interface PlayaProps {
 }
 
 export default function Playa({ studentId }: PlayaProps) {
-  const { scene }  = useGLTF('https://github.com/isago0113/proyecto-playafinal/releases/download/v1.0/beach.glb');
+  const { scene }  = useGLTF('https://o2f7krpbx42yg1ho.public.blob.vercel-storage.com/beach.glb');
   const { camera } = useThree();
 
   const [objetivoActivo, setObjetivoActivo] = useState<InteractionTarget | null>(null);
@@ -125,4 +125,4 @@ export default function Playa({ studentId }: PlayaProps) {
   );
 }
 
-useGLTF.preload('https://github.com/isago0113/proyecto-playafinal/releases/download/v1.0/beach.glb');
+useGLTF.preload('https://o2f7krpbx42yg1ho.public.blob.vercel-storage.com/beach.glb');
