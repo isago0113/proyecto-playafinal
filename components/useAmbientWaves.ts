@@ -13,7 +13,7 @@ export function useAmbientWaves(musicaActiva: boolean) {
   musicaActivaRef.current = musicaActiva;
 
   useEffect(() => {
-    const ambient = new Audio('/juliush-sandy-beach-calm-waves-water-nature-sounds-8052.mp3');
+    const ambient = new Audio('https://github.com/isago0113/proyecto-playafinal/releases/download/v1.0/juliush-sandy-beach-calm-waves-water-nature-sounds-8052.mp3');
     ambient.loop   = true;
     ambient.volume = 0.3;
     audioRef.current = ambient;

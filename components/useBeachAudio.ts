@@ -7,11 +7,12 @@ export interface Cancion {
   archivo: string;
 }
 
+const BASE = 'https://github.com/isago0113/proyecto-playafinal/releases/download/v1.0';
+
 export const LISTA_CANCIONES: Cancion[] = [
-  { nombre: "Unity with Nature", archivo: "/audio/emmraan-unity-with-nature-282919.mp3" },
-  { nombre: "Mar Calmado", archivo: "/audio/mesacbertrand-mar-calmado-272997.mp3" },
-  { nombre: "Storm in the Dark", archivo: "/audio/lolivac-storm-in-the-dark-502864 (1).mp3" },
-  { nombre: "The Kiss of Dawn", archivo: "/audio/elenlackner-the-kiss-of-dawn-music-and-piano-by-elen-lackner-118368.mp3" }
+  { nombre: "Unity with Nature", archivo: `${BASE}/emmraan-unity-with-nature-282919.mp3` },
+  { nombre: "Mar Calmado",       archivo: `${BASE}/mesacbertrand-mar-calmado-272997.mp3` },
+  { nombre: "Storm in the Dark", archivo: `${BASE}/lolivac-storm-in-the-dark-502864%20(1).mp3` },
 ];
 
 export function useBeachAudio() {
