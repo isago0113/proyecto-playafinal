@@ -119,7 +119,6 @@ export default function Playa({ studentId }: PlayaProps) {
       />
 
       <Pelota
-        scene={scene}
         animando={animandoPelota}
         setAnimando={setAnimandoPelota}
       />
